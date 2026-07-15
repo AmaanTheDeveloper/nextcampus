@@ -10,17 +10,16 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
     use HasApiTokens;
-
-    /** @use HasFactory<UserFactory> */
     use HasFactory;
-
     use HasProfilePhoto;
     use Notifiable;
     use TwoFactorAuthenticatable;
+    use HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -31,6 +30,16 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'status',
+        'phone',
+        'bio',
+        'facebook',
+        'twitter',
+        'linkedin',
+        'github',
+        'is_blocked',
+        'block_message',
     ];
 
     /**
@@ -65,5 +74,36 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    // Role profile relationships
+    public function studentProfile()
+    {
+        return $this->hasOne(StudentProfile::class);
+    }
+
+    public function companyProfile()
+    {
+        return $this->hasOne(CompanyProfile::class);
+    }
+
+    public function teacherProfile()
+    {
+        return $this->hasOne(TeacherProfile::class);
+    }
+
+    public function clubLeaderProfile()
+    {
+        return $this->hasOne(ClubLeaderProfile::class);
+    }
+
+    public function internshipApplications()
+    {
+        return $this->hasMany(InternshipApplication::class, 'student_id');
+    }
+
+    public function assignmentSubmissions()
+    {
+        return $this->hasMany(AssignmentSubmission::class, 'student_id');
     }
 }
