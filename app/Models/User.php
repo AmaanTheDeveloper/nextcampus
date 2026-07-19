@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -12,7 +12,7 @@ use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens;
     use HasFactory;
@@ -61,6 +61,7 @@ class User extends Authenticatable
      */
     protected $appends = [
         'profile_photo_url',
+        'is_verified',
     ];
 
     /**
@@ -74,6 +75,18 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function getIsVerifiedAttribute()
+    {
+        if ($this->role === 'student') {
+            if (!$this->hasVerifiedEmail()) return false;
+            $profile = $this->studentProfile;
+            if (!$profile) return false;
+            return $profile->completion_percentage === 100;
+        }
+
+        return $this->status === 'active';
     }
 
     // Role profile relationships
@@ -105,5 +118,10 @@ class User extends Authenticatable
     public function assignmentSubmissions()
     {
         return $this->hasMany(AssignmentSubmission::class, 'student_id');
+    }
+
+    public function roleChangeRequests()
+    {
+        return $this->hasMany(RoleChangeRequest::class);
     }
 }

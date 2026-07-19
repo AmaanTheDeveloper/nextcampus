@@ -36,7 +36,7 @@ class CreateNewUser implements CreatesNewUsers
         ])->validate();
 
         $role = $input['role'];
-        $status = ($role === 'teacher' || $role === 'company') ? 'pending' : 'active';
+        $status = in_array($role, ['teacher', 'company', 'club_leader']) ? 'pending' : 'active';
 
         $user = User::create([
             'name' => $input['name'],

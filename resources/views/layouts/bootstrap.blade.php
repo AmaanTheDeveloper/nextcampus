@@ -350,7 +350,7 @@ border-radius:12px;
 }
 </style>
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
 
     <!-- Main Content Area -->
     @yield('body')
